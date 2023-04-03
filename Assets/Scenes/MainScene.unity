@@ -175,7 +175,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4fb417f8c80d3e743b9e5defb15179af, type: 2}
+  - {fileID: 2100000, guid: 0cb4548ca8592e342b5fd893c6c41b1a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1103,7 +1103,7 @@ MonoBehaviour:
   cells_y: 20
   cells_z: 20
   cell_size: 1
-  nbBubulle: 1000
+  nbBubulle: 10
   maxIterProjection: 2
   maxIterPoisson: 2
   bubullePrefab: {fileID: 5918907865288001710, guid: 069bfaa00b29b4944adc801b2b73966d,

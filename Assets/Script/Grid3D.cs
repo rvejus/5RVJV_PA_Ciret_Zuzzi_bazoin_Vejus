@@ -64,7 +64,6 @@ public class Grid3D : MonoBehaviour
             GameObject bubulle = Instantiate(bubullePrefab, pos, Quaternion.identity);
             bubulles.Add(bubulle);
             bubulle.transform.parent = transform;
-            bubulle.GetComponent<Bubulle>().position = pos;
             bubulle.GetComponent<Bubulle>().velocity = new Vector3(Random.Range(-0.1f,0.1f),
                 Random.Range(-0.1f,0.1f),
                 Random.Range(-0.1f,0.1f));
