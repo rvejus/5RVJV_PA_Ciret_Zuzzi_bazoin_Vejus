@@ -1,18 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 public class BoidManager : MonoBehaviour {
 
     const int threadGroupSize = 1024;
-
+    
+    [SerializeField]
     public BoidSettings settings;
+    [SerializeField]
     public ComputeShader compute;
+    [SerializeField]
+    public int boidsNumber;
     public Boid[] boids;
+    [SerializeField] private GameObject boidPrefab;
     public Transform[] targets = null;
+    [SerializeField]
     public int boidsPerTarget=1;
+    [SerializeField] private Transform spawnPoint;
     void Start () {
+        //boids = FindObjectsOfType<Boid> ();
+        boids = new Boid[boidsNumber];
+        for (int i = 0; i < boidsNumber; i++)
+        {
+            GameObject curBoid = Instantiate(boidPrefab, spawnPoint);
+            Vector3 curPos = curBoid.transform.position;
+            curBoid.transform.position = new Vector3(curPos.x + Random.Range(-1.0f, 1.0f),
+                curPos.y + Random.Range(-1.0f, 1.0f), curPos.z + Random.Range(-1.0f, 1.0f));
+        }
         boids = FindObjectsOfType<Boid> ();
         int latestBoid = 0;
         for (int i=0; i<targets.Length;i++){
