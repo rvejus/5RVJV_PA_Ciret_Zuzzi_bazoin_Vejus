@@ -1,20 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 public class BoidManager : MonoBehaviour {
 
-    //const int threadGroupSize = 1024;
+    const int threadGroupSize = 1024;
 
     public BoidSettings settings;
-    //public ComputeShader compute;
+    public ComputeShader compute;
     public Boid[] boids;
-    public Transform target = null;
-
+    public Transform[] targets = null;
+    public int boidsPerTarget=1;
     void Start () {
         boids = FindObjectsOfType<Boid> ();
-        foreach (Boid b in boids) {
-            b.Initialize (settings, target);
+        int latestBoid = 0;
+        for (int i=0; i<targets.Length;i++){
+            for (int j = 0; j < boidsPerTarget; j++, latestBoid++)
+            {
+                Boid b = boids[latestBoid];
+                b.Initialize (settings, targets[i]);
+            }
+
+            if (latestBoid < boids.Length)
+            {
+                for (int j = latestBoid; j < boids.Length; j++)
+                {
+                    Boid b = boids[j];
+                    b.Initialize (settings, null);
+                }
+            }
         }
 
     }
@@ -33,7 +48,7 @@ public class BoidManager : MonoBehaviour {
             var boidBuffer = new ComputeBuffer (numBoids, BoidData.Size);
             boidBuffer.SetData (boidData);
 
-            /*compute.SetBuffer (0, "boids", boidBuffer);
+            compute.SetBuffer (0, "boids", boidBuffer);
             compute.SetInt ("numBoids", boids.Length);
             compute.SetFloat ("viewRadius", settings.perceptionRadius);
             compute.SetFloat ("avoidRadius", settings.avoidanceRadius);
@@ -41,7 +56,7 @@ public class BoidManager : MonoBehaviour {
             int threadGroups = Mathf.CeilToInt (numBoids / (float) threadGroupSize);
             compute.Dispatch (0, threadGroups, 1, 1);
 
-            boidBuffer.GetData (boidData);*/
+            boidBuffer.GetData (boidData);
 
             for (int i = 0; i < boids.Length; i++) {
                 boids[i].avgFlockHeading = boidData[i].flockHeading;
@@ -52,7 +67,7 @@ public class BoidManager : MonoBehaviour {
                 boids[i].UpdateBoid ();
             }
 
-            //boidBuffer.Release ();
+            boidBuffer.Release ();
         }
     }
 

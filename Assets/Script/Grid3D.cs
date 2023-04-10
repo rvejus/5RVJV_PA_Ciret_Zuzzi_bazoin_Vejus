@@ -5,6 +5,7 @@ using System.Linq;
 using TreeEditor;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 
 public class Grid3D : MonoBehaviour
@@ -21,6 +22,15 @@ public class Grid3D : MonoBehaviour
     private float minx, maxx, miny, maxy, minz, maxz;
     private float[,,] divergence;
 
+    [SerializeField] private ComputeShader bubulleShader;
+    [SerializeField] private Mesh particleMesh;
+    private ComputeBuffer verticesBuffer;
+    private ComputeBuffer instanceDataBuffer;
+    private InstanceData[] instanceData;
+    struct InstanceData {
+        public Vector3 position;
+        public Vector3 scale;
+    };
     void Awake()
     {
         //Init Grid et bubulles
@@ -69,6 +79,37 @@ public class Grid3D : MonoBehaviour
                 Random.Range(-0.1f,0.1f));
             bubulle.name = "bubulle" + i;
         }
+        //setting up compute shader for rendering
+        
+        int vertexCount = particleMesh.vertexCount;
+        int vertexStride = sizeof(float) * 6;
+        int vertexDataSize = vertexCount * vertexStride;
+        int paddedVertexDataSize = Mathf.CeilToInt((float)vertexDataSize / vertexStride) * vertexStride; // round up to nearest multiple of buffer stride
+        float[] paddedVertexData = new float[paddedVertexDataSize / sizeof(float)];
+        Vector3[] vertices = particleMesh.vertices;
+        Vector3[] normals = particleMesh.normals;
+        for (int i = 0; i < vertexCount; i++)
+        {
+            int startIndex = i * 6;
+            paddedVertexData[startIndex] = vertices[i].x;
+            paddedVertexData[startIndex + 1] = vertices[i].y;
+            paddedVertexData[startIndex + 2] = vertices[i].z;
+            paddedVertexData[startIndex + 3] = normals[i].x;
+            paddedVertexData[startIndex + 4] = normals[i].y;
+            paddedVertexData[startIndex + 5] = normals[i].z;
+        }
+        verticesBuffer = new ComputeBuffer(paddedVertexData.Length / 6, vertexStride);
+        verticesBuffer.SetData(paddedVertexData);
+        
+        instanceDataBuffer = new ComputeBuffer(nbBubulle, sizeof(float) * 6);
+        instanceData = new InstanceData[nbBubulle];
+        for (int i = 0; i < nbBubulle; i++) {
+            instanceData[i].position = bubulles[i].transform.position; // set initial position for each instance
+            instanceData[i].scale = Vector3.one; // set scale for each instance
+        }
+        instanceDataBuffer.SetData(instanceData);
+        bubulleShader.SetBuffer(0, "verticesBuffer", verticesBuffer);
+        bubulleShader.SetBuffer(0, "instanceDataBuffer", instanceDataBuffer);
     }
 
     void Update()
@@ -87,6 +128,8 @@ public class Grid3D : MonoBehaviour
 
         // Etape 2 Projection
         Projection(dt);
+        //Etape 3 rendering via compute Shader
+        
     }
 
 
@@ -309,5 +352,22 @@ public class Grid3D : MonoBehaviour
 
             iter++;
         }
+    }
+
+    void ComputeRender()
+    {
+        for (int i = 0; i < nbBubulle; i++)
+        {
+            instanceData[i].position = bubulles[i].transform.position;
+        }
+        instanceDataBuffer.SetData(instanceData);
+        
+        bubulleShader.Dispatch(0, nbBubulle*particleMesh.vertexCount/8,1,1);    
+    }
+
+    private void OnDestroy()
+    {
+        verticesBuffer.Release();
+        instanceDataBuffer.Release();
     }
 }

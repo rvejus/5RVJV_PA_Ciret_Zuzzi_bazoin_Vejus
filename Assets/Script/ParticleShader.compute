@@ -1,0 +1,27 @@
+#pragma kernel CSMain
+
+struct Vertex {
+    float3 position : POSITION;
+    float3 normal : NORMAL;
+};
+
+StructuredBuffer<Vertex> verticesBuffer;
+
+struct InstanceData {
+    float3 position;
+    float3 scale;
+};
+
+StructuredBuffer<InstanceData> instanceDataBuffer;
+
+[numthreads(8, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    InstanceData instanceData = instanceDataBuffer[id.x];
+    Vertex vertex = verticesBuffer[id.y];
+    
+    // Perform rendering with vertex and instance data
+    // Transform the vertex position using the instance position and scale
+    float3 transformedPosition = vertex.position * instanceData.scale + instanceData.position;
+    // Output the transformed vertex position for rendering
+}
