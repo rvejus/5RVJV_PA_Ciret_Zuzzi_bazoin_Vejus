@@ -14,15 +14,18 @@ public class BoidManager : MonoBehaviour {
     [SerializeField]
     public ComputeShader compute;
     [SerializeField]
-    public int boidsNumber;
+    public int SavageboidsNumber;
+
+    private int boidsNumber;
     public Boid[] boids;
     [SerializeField] private GameObject boidPrefab;
-    public Transform[] targets = null;
+    public List<Transform> targets = null;
     [SerializeField]
     public int boidsPerTarget=1;
     [SerializeField] private Transform spawnPoint;
     void Start () {
         //boids = FindObjectsOfType<Boid> ();
+        boidsNumber = SavageboidsNumber + (targets.Count * boidsPerTarget);
         boids = new Boid[boidsNumber];
         for (int i = 0; i < boidsNumber; i++)
         {
@@ -33,7 +36,7 @@ public class BoidManager : MonoBehaviour {
         }
         boids = FindObjectsOfType<Boid> ();
         int latestBoid = 0;
-        for (int i=0; i<targets.Length;i++){
+        for (int i=0; i<targets.Count;i++){
             for (int j = 0; j < boidsPerTarget; j++, latestBoid++)
             {
                 Boid b = boids[latestBoid];
