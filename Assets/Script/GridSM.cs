@@ -48,13 +48,13 @@ public class GridSM : MonoBehaviour
         }
 
         //Init gridOrg pour les calculs de position
-        minx = Mathf.Abs(gridOrg.x);
-        miny = Mathf.Abs(gridOrg.y);
-        minz = Mathf.Abs(gridOrg.z);
-        maxx = cells_x;
-        maxy = cells_y;
-        maxz = cells_z;
-        Debug.Log(minx +" "+miny +" "+minz +" "+maxx +" "+maxz+" "+maxy);
+        minx = gridOrg.x;
+        miny = gridOrg.y;
+        minz = gridOrg.z;
+        maxx = minx + cells_x;
+        maxy = miny + cells_y;
+        maxz = minz + cells_z;
+        //Debug.Log(minx +" "+miny +" "+minz +" "+maxx +" "+maxz+" "+maxy);
 
         //Init bubulles et les mettre dans la liste
         bubulles = new List<GameObject>();
@@ -102,12 +102,12 @@ public class GridSM : MonoBehaviour
     //et autres parametre des particules sauf la vélocité
     void Advection(GameObject bubulle, float dt)
     {
-        //Appliquer la force de gravité du rigidbody à chaque particule
+        // Appliquer la force de gravité du rigidbody à chaque particule
         //bubulle.GetComponent<Bubulle>().force += bubulle.GetComponent<Bubulle>().rigidbody.mass * Physics.gravity;
 
-        Vector3 bubullepos = bubulle.transform.localPosition;
+        Vector3 bubullepos = bubulle.transform.position;
         Vector3 bubullevec = bubulle.GetComponent<Bubulle>().velocity;
-        
+        Rigidbody bubulleRigid = bubulle.GetComponent<Rigidbody>();
         //On récupère la vélocité des à notre position par rapport aux autre cellules
         Vector3 vel = TrilinéairInterpolate(velocity, bubullepos);
         
@@ -116,15 +116,17 @@ public class GridSM : MonoBehaviour
         
         //Nouvelle interpolation avec la nouvelle position
         vel = TrilinéairInterpolate(velocity, newPos);
-        
+        bubulleRigid.velocity = new Vector3(vel.x,vel.y+bubulleRigid.velocity.y, vel.z);
+        /*
         //On met à jour la nouvelle position avec la vélocité de la bubulle
         newPos = new Vector3(newPos.x + bubullevec.x, newPos.y + bubullevec.y, newPos.z + bubullevec.z) + vel * dt;
-        
+        */
         //Si une bubulle est en dehors, on fait boucler
-        newPos.x = Mathf.Repeat(newPos.x - minx, maxx) + minx;
-        newPos.y = Mathf.Repeat(newPos.y - miny, maxy) + miny;
-        newPos.z = Mathf.Repeat(newPos.z - minz, maxz) + minz;
+        newPos.x = Mathf.Repeat(bubullepos.x - minx, maxx) + minx;
+        newPos.y = Mathf.Repeat(bubullepos.y - miny, maxy) + miny;
+        newPos.z = Mathf.Repeat(bubullepos.z - minz, maxz) + minz;
         bubulle.transform.position = newPos;
+        
     }
 
     //Interpolation trilinéaire retournant un float
@@ -170,11 +172,11 @@ public class GridSM : MonoBehaviour
     public Vector3 TrilinéairInterpolate(Vector3[,,] gridData, Vector3 pos)
     {
         
-        //Vector3 gridPosition = (pos - transform.position);
+        Vector3 gridPosition = (pos - transform.position);
         
-        int x0 = Mathf.FloorToInt(pos.x);
-        int y0 = Mathf.FloorToInt(pos.y);
-        int z0 = Mathf.FloorToInt(pos.z);
+        int x0 = Mathf.FloorToInt(gridPosition.x);
+        int y0 = Mathf.FloorToInt(gridPosition.y);
+        int z0 = Mathf.FloorToInt(gridPosition.z);
         
         x0 = (int)(Mathf.Repeat(x0 - minx, maxx) + minx);
         y0 = (int)(Mathf.Repeat(y0 - miny, maxy) + miny);
@@ -190,9 +192,6 @@ public class GridSM : MonoBehaviour
         float zd = (int)(Mathf.Repeat(pos.z-z0 - miny, maxy) + miny);
         
         //Interpolation en x
-        Debug.Log("gridpos "+ pos);
-        Debug.Log("x0 "+x0+" "+y0+" "+z0);
-        Debug.Log("x1 "+x1+" "+y0+" "+z0);
         Vector3 c00 = gridData[x0, y0, z0] * (1 - xd) + gridData[x1, y0, z0] * xd;
         Vector3 c10 = gridData[x0, y1, z0] * (1 - xd) + gridData[x1, y1, z0] * xd;
         Vector3 c01 = gridData[x0, y0, z1] * (1 - xd) + gridData[x1, y0, z1] * xd;
