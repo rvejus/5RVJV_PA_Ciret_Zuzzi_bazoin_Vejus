@@ -21,7 +21,7 @@ public class Grid3D : MonoBehaviour
     public List<GameObject> bubulles;
     private float minx, maxx, miny, maxy, minz, maxz;
     private float[,,] divergence;
-
+/*
     [SerializeField] private ComputeShader bubulleShader;
     [SerializeField] private Mesh particleMesh;
     private ComputeBuffer verticesBuffer;
@@ -31,6 +31,7 @@ public class Grid3D : MonoBehaviour
         public Vector3 position;
         public Vector3 scale;
     };
+    */
     void Awake()
     {
         //Init Grid et bubulles
@@ -80,7 +81,7 @@ public class Grid3D : MonoBehaviour
             bubulle.name = "bubulle" + i;
         }
         //setting up compute shader for rendering
-        
+        /*
         int vertexCount = particleMesh.vertexCount;
         int vertexStride = sizeof(float) * 6;
         int vertexDataSize = vertexCount * vertexStride;
@@ -110,6 +111,7 @@ public class Grid3D : MonoBehaviour
         instanceDataBuffer.SetData(instanceData);
         bubulleShader.SetBuffer(0, "verticesBuffer", verticesBuffer);
         bubulleShader.SetBuffer(0, "instanceDataBuffer", instanceDataBuffer);
+        */
     }
 
     void Update()
@@ -142,7 +144,7 @@ public class Grid3D : MonoBehaviour
 
         Vector3 bubullepos = bubulle.transform.position;
         Vector3 bubullevec = bubulle.GetComponent<Bubulle>().velocity;
-        
+        Rigidbody bubulleRigid = bubulle.GetComponent<Rigidbody>();
         //On récupère la vélocité des à notre position par rapport aux autre cellules
         Vector3 vel = TrilinéairInterpolate(velocity, bubullepos);
         
@@ -151,15 +153,17 @@ public class Grid3D : MonoBehaviour
         
         //Nouvelle interpolation avec la nouvelle position
         vel = TrilinéairInterpolate(velocity, newPos);
-        
+        bubulleRigid.velocity = new Vector3(vel.x,vel.y+bubulleRigid.velocity.y, vel.z);
+        /*
         //On met à jour la nouvelle position avec la vélocité de la bubulle
         newPos = new Vector3(newPos.x + bubullevec.x, newPos.y + bubullevec.y, newPos.z + bubullevec.z) + vel * dt;
-        
+        */
         //Si une bubulle est en dehors, on fait boucler
         newPos.x = Mathf.Repeat(newPos.x - minx, maxx) + minx;
         newPos.y = Mathf.Repeat(newPos.y - miny, maxy) + miny;
         newPos.z = Mathf.Repeat(newPos.z - minz, maxz) + minz;
         bubulle.transform.position = newPos;
+        
     }
 
     //Interpolation trilinéaire retournant un float
@@ -353,7 +357,8 @@ public class Grid3D : MonoBehaviour
             iter++;
         }
     }
-
+    
+    /*
     void ComputeRender()
     {
         for (int i = 0; i < nbBubulle; i++)
@@ -370,4 +375,5 @@ public class Grid3D : MonoBehaviour
         verticesBuffer.Release();
         instanceDataBuffer.Release();
     }
+    */
 }
