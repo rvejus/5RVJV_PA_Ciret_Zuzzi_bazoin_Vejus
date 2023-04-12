@@ -22,16 +22,6 @@ public class GridSM : MonoBehaviour
     public BoidManager boidsManager;
     private float minx, maxx, miny, maxy, minz, maxz;
     private float[,,] divergence;
-
-    //[SerializeField] private ComputeShader bubulleShader;
-    //[SerializeField] private Mesh particleMesh;
-    //private ComputeBuffer verticesBuffer;
-    //private ComputeBuffer instanceDataBuffer;
-    //private InstanceData[] instanceData;
-    /*struct InstanceData {
-        public Vector3 position;
-        public Vector3 scale;
-    };*/
     void Awake()
     {
         //Init Grid et bubulles
@@ -58,12 +48,13 @@ public class GridSM : MonoBehaviour
         }
 
         //Init gridOrg pour les calculs de position
-        minx = gridOrg.x;
-        miny = gridOrg.y;
-        minz = gridOrg.z;
-        maxx = gridOrg.x + cells_x;
-        maxy = gridOrg.y + cells_y;
-        maxz = gridOrg.z + cells_z;
+        minx = Mathf.Abs(gridOrg.x);
+        miny = Mathf.Abs(gridOrg.y);
+        minz = Mathf.Abs(gridOrg.z);
+        maxx = cells_x;
+        maxy = cells_y;
+        maxz = cells_z;
+        Debug.Log(minx +" "+miny +" "+minz +" "+maxx +" "+maxz+" "+maxy);
 
         //Init bubulles et les mettre dans la liste
         bubulles = new List<GameObject>();
@@ -84,38 +75,6 @@ public class GridSM : MonoBehaviour
         }
 
         boidsManager.targets = bubullesT;
-        //setting up compute shader for rendering
-        /*
-        int vertexCount = particleMesh.vertexCount;
-        int vertexStride = sizeof(float) * 6;
-        int vertexDataSize = vertexCount * vertexStride;
-        int paddedVertexDataSize = Mathf.CeilToInt((float)vertexDataSize / vertexStride) * vertexStride; // round up to nearest multiple of buffer stride
-        float[] paddedVertexData = new float[paddedVertexDataSize / sizeof(float)];
-        Vector3[] vertices = particleMesh.vertices;
-        Vector3[] normals = particleMesh.normals;
-        for (int i = 0; i < vertexCount; i++)
-        {
-            int startIndex = i * 6;
-            paddedVertexData[startIndex] = vertices[i].x;
-            paddedVertexData[startIndex + 1] = vertices[i].y;
-            paddedVertexData[startIndex + 2] = vertices[i].z;
-            paddedVertexData[startIndex + 3] = normals[i].x;
-            paddedVertexData[startIndex + 4] = normals[i].y;
-            paddedVertexData[startIndex + 5] = normals[i].z;
-        }
-        verticesBuffer = new ComputeBuffer(paddedVertexData.Length / 6, vertexStride);
-        verticesBuffer.SetData(paddedVertexData);
-        
-        instanceDataBuffer = new ComputeBuffer(nbBubulle, sizeof(float) * 6);
-        instanceData = new InstanceData[nbBubulle];
-        for (int i = 0; i < nbBubulle; i++) {
-            instanceData[i].position = bubulles[i].transform.position; // set initial position for each instance
-            instanceData[i].scale = Vector3.one; // set scale for each instance
-        }
-        instanceDataBuffer.SetData(instanceData);
-        bubulleShader.SetBuffer(0, "verticesBuffer", verticesBuffer);
-        bubulleShader.SetBuffer(0, "instanceDataBuffer", instanceDataBuffer);
-        */
     }
 
     void Update()
@@ -143,10 +102,10 @@ public class GridSM : MonoBehaviour
     //et autres parametre des particules sauf la vélocité
     void Advection(GameObject bubulle, float dt)
     {
-        // Appliquer la force de gravité du rigidbody à chaque particule
+        //Appliquer la force de gravité du rigidbody à chaque particule
         //bubulle.GetComponent<Bubulle>().force += bubulle.GetComponent<Bubulle>().rigidbody.mass * Physics.gravity;
 
-        Vector3 bubullepos = bubulle.transform.position;
+        Vector3 bubullepos = bubulle.transform.localPosition;
         Vector3 bubullevec = bubulle.GetComponent<Bubulle>().velocity;
         
         //On récupère la vélocité des à notre position par rapport aux autre cellules
@@ -211,11 +170,11 @@ public class GridSM : MonoBehaviour
     public Vector3 TrilinéairInterpolate(Vector3[,,] gridData, Vector3 pos)
     {
         
-        Vector3 gridPosition = (pos - transform.position); 
+        //Vector3 gridPosition = (pos - transform.position);
         
-        int x0 = Mathf.FloorToInt(gridPosition.x);
-        int y0 = Mathf.FloorToInt(gridPosition.y);
-        int z0 = Mathf.FloorToInt(gridPosition.z);
+        int x0 = Mathf.FloorToInt(pos.x);
+        int y0 = Mathf.FloorToInt(pos.y);
+        int z0 = Mathf.FloorToInt(pos.z);
         
         x0 = (int)(Mathf.Repeat(x0 - minx, maxx) + minx);
         y0 = (int)(Mathf.Repeat(y0 - miny, maxy) + miny);
@@ -226,11 +185,14 @@ public class GridSM : MonoBehaviour
         int y1 = (int)(Mathf.Repeat(y0+1 - miny, maxy) + miny);
         int z1 = (int)(Mathf.Repeat(z0+1 - minz, maxz) + minz);
 
-        float xd = (int)(Mathf.Repeat(gridPosition.x-x0 - minx, maxx) + minx);
-        float yd = (int)(Mathf.Repeat(gridPosition.y-y0 - miny, maxy) + miny);
-        float zd = (int)(Mathf.Repeat(gridPosition.z-z0 - miny, maxy) + miny);
-            
+        float xd = (int)(Mathf.Repeat(pos.x-x0 - minx, maxx) + minx);
+        float yd = (int)(Mathf.Repeat(pos.y-y0 - miny, maxy) + miny);
+        float zd = (int)(Mathf.Repeat(pos.z-z0 - miny, maxy) + miny);
+        
         //Interpolation en x
+        Debug.Log("gridpos "+ pos);
+        Debug.Log("x0 "+x0+" "+y0+" "+z0);
+        Debug.Log("x1 "+x1+" "+y0+" "+z0);
         Vector3 c00 = gridData[x0, y0, z0] * (1 - xd) + gridData[x1, y0, z0] * xd;
         Vector3 c10 = gridData[x0, y1, z0] * (1 - xd) + gridData[x1, y1, z0] * xd;
         Vector3 c01 = gridData[x0, y0, z1] * (1 - xd) + gridData[x1, y0, z1] * xd;
@@ -359,22 +321,4 @@ public class GridSM : MonoBehaviour
             iter++;
         }
     }
-    /*
-    void ComputeRender()
-    {
-        for (int i = 0; i < nbBubulle; i++)
-        {
-            instanceData[i].position = bubulles[i].transform.position;
-        }
-        instanceDataBuffer.SetData(instanceData);
-        
-        bubulleShader.Dispatch(0, nbBubulle*particleMesh.vertexCount/8,1,1);    
-    }
-
-    private void OnDestroy()
-    {
-        verticesBuffer.Release();
-        instanceDataBuffer.Release();
-    }
-    */
 }
