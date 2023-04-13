@@ -27,7 +27,7 @@ public class Boid : MonoBehaviour {
     // Cached
     Material material;
     Transform cachedTransform;
-    Transform target;
+    [SerializeField]Transform target;
 
     void Awake () {
         material = transform.GetComponentInChildren<MeshRenderer> ().material;
