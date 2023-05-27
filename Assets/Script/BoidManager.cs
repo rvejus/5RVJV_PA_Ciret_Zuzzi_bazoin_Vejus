@@ -18,11 +18,11 @@ public class BoidManager : MonoBehaviour {
 
     private int boidsNumber;
     public Boid[] boids;
-    [SerializeField] private GameObject boidPrefab;
+    [SerializeField] public GameObject boidPrefab;
     public List<Transform> targets = null;
     [SerializeField]
     public int boidsPerTarget=1;
-    [SerializeField] private Transform spawnPoint;
+    [SerializeField] public Transform spawnPoint;
     void Start () {
         //boids = FindObjectsOfType<Boid> ();
         boidsNumber = SavageboidsNumber + (targets.Count * boidsPerTarget);
