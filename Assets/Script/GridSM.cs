@@ -22,6 +22,7 @@ public class GridSM : MonoBehaviour
     public BoidManager boidsManager;
     private float minx, maxx, miny, maxy, minz, maxz;
     private float[,,] divergence;
+    public GameObject spawnPoint;
     void Awake()
     {
         //Init Grid et bubulles

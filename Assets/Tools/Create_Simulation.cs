@@ -1,6 +1,7 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 
 public class Create_Simulation : EditorWindow
@@ -9,6 +10,10 @@ public class Create_Simulation : EditorWindow
     private GridSM grid;
     private BoidManager boidman;
     private Vector3 gridSize;
+    private bool isHeight;
+    private bool isPreview = false;
+    private bool printVector;
+   
     
     
     [MenuItem("Fluid Simulation Tools/Create Simulation")]
@@ -22,6 +27,7 @@ public class Create_Simulation : EditorWindow
     {
         Selection.selectionChanged += OnSelectionChange;
         SceneView.onSceneGUIDelegate += OnSceneGUI;
+        
     }
 
     private void OnDisable()
@@ -42,10 +48,7 @@ public class Create_Simulation : EditorWindow
         boidman = FindObjectOfType<BoidManager>();
     }
     
-    private void CalculateGridSize()
-    {
-        gridSize = new Vector3(grid.cells_x * grid.cell_size, grid.cells_y * grid.cell_size, grid.cells_z * grid.cell_size);
-    }
+  
 
 
     private void OnGUI()
@@ -66,7 +69,7 @@ public class Create_Simulation : EditorWindow
         grid.cells_z = EditorGUILayout.IntField("Size Z", grid.cells_z);
         grid.cell_size = EditorGUILayout.FloatField("Grid cell size", grid.cell_size);
         
-        CalculateGridSize();
+        
         EditorGUILayout.Space();
         
         grid.nbBubulle = EditorGUILayout.IntField("Number of particle", grid.nbBubulle);
@@ -74,7 +77,7 @@ public class Create_Simulation : EditorWindow
         grid.maxIterPoisson = EditorGUILayout.IntField("Number of Poisson iteration", grid.maxIterPoisson);
         grid.bubullePrefab = EditorGUILayout.ObjectField("Prefab Particle", grid.bubullePrefab, typeof(GameObject), false) as GameObject;
         grid.boidsManager = EditorGUILayout.ObjectField("Boids Manager", grid.boidsManager, typeof(BoidManager), true) as BoidManager;
-        
+        grid.spawnPoint = EditorGUILayout.ObjectField("Particle SpawnPoint", grid.spawnPoint, typeof(GameObject), true) as GameObject;
         EditorGUILayout.Space();
         
         //Modification de velocité
@@ -97,33 +100,126 @@ public class Create_Simulation : EditorWindow
         EditorGUILayout.LabelField("Boid Configuration", EditorStyles.boldLabel);
         boidman.boidsPerTarget = EditorGUILayout.IntField("Boid per Particule", boidman.boidsPerTarget);
         boidman.boidPrefab = EditorGUILayout.ObjectField("Prefab Boid", boidman.boidPrefab, typeof(GameObject), false) as GameObject;
+        boidman.spawnPoint = EditorGUILayout.ObjectField("Boid SpawnPoint", boidman.spawnPoint, typeof(GameObject), true) as Transform;
         
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
+        EditorGUILayout.LabelField("Preview configurator", EditorStyles.boldLabel);
+        isPreview = EditorGUILayout.Toggle("ShowPreview", isPreview);
+        isHeight = EditorGUILayout.Toggle("Print the Height ?", isHeight);
+        printVector = EditorGUILayout.Toggle("Print the vector of Cells ?", printVector);
         
 
+        //Choix des velocité de bases
+        if (GUILayout.Button("Velocity = random"))
+        {
+            FillVelocityWithRandom();
+        }
+        
+        if (GUILayout.Button("Velocity = Null"))
+        {
+            FillVelocityWithNullVector();
+        }
+        
+       
     }
 
     
     private void OnSceneGUI(SceneView sceneview)
     {
-        if (grid == null)
+        
+        
+        if (grid == null || isPreview == false)
             return;
 
         float cellSize = grid.cell_size;
-
-        for (int x = 0; x < grid.cells_x; x++)
+        
+        Vector3Int currentGridSize = new Vector3Int(grid.cells_x, grid.cells_y, grid.cells_z);
+        
+        if (isHeight)
         {
-            for (int z = 0; z < grid.cells_z; z++)
+            for (int x = 0; x < grid.cells_x; x++)
             {
+                for (int y = 0; y < grid.cells_y; y++)
+                {
+                    for (int z = 0; z < grid.cells_z; z++)
+                    {
                 
-                    Vector3 position = new Vector3(x * cellSize,  cellSize,  z*cellSize);
+                        Vector3 position = new Vector3(x * cellSize,  y*cellSize,  z*cellSize);
 
-                    Handles.color = Color.blue;
-                    Handles.DrawWireCube(position, Vector3.one * cellSize);
+                        Handles.color = Color.blue;
+                        Handles.DrawWireCube(position, Vector3.one * cellSize);
+                        if (printVector )
+                        {
+                            Vector3 direction = grid.velocity[x, y, z].normalized;
+                            Vector3 arrowEnd = position + direction * cellSize * 0.5f;
+                            Handles.color = Color.green;
+                            Handles.DrawLine(position, arrowEnd);
+                            Handles.ArrowHandleCap(0, arrowEnd, Quaternion.LookRotation(direction), cellSize * 0.3f, EventType.Repaint);
+                        }
+                
+                    } 
+                }
+            } 
+        }
+        else
+        {
+            for (int x = 0; x < grid.cells_x; x++)
+            {
+                for (int y = 0; y < grid.cells_y; y++)
+                {
+                    for (int z = 0; z < grid.cells_z; z++)
+                    {
+                        Vector3 position = new Vector3(x * cellSize,  cellSize,  z*cellSize);
+
+                        Handles.color = Color.blue;
+                        Handles.DrawWireCube(position, Vector3.one * cellSize);
+                        if (printVector )
+                            {
+                                Vector3 direction = grid.velocity[x, y, z].normalized;
+                                Vector3 arrowEnd = position + direction * cellSize * 0.5f;
+                                Handles.color = Color.green;
+                                Handles.DrawLine(position, arrowEnd);
+                                Handles.ArrowHandleCap(0, arrowEnd, Quaternion.LookRotation(direction), cellSize * 0.3f, EventType.Repaint);
+                            }
+
+                    }  
+                }
                 
             }
         }
     }
+
+
+    private void FillVelocityWithRandom()
+    {
+        for (int x = 0; x < grid.cells_x; x++)
+        {
+            for (int y = 0; y < grid.cells_y; y++)
+            {
+                for (int z = 0; z < grid.cells_z; z++)
+                {
+                    grid.velocity[x, y, z] = new Vector3(Random.Range(-1,1)*2,
+                        Random.Range(-1,1)*2,
+                        Random.Range(-1,1)*2);
+                }
+            }
+        }
+    }
+    
+    private void FillVelocityWithNullVector()
+    {
+        for (int x = 0; x < grid.cells_x; x++)
+        {
+            for (int y = 0; y < grid.cells_y; y++)
+            {
+                for (int z = 0; z < grid.cells_z; z++)
+                {
+                    grid.velocity[x, y, z] = Vector3.zero;
+                }
+            }
+        }
+    }
+    
 }
