@@ -49,7 +49,10 @@ public class Create_Simulation : EditorWindow
         boidman = FindObjectOfType<BoidManager>();
     }
     
-  
+    int getIndex(int x, int y, int z)
+    {
+        return x * (grid.cells_y * grid.cells_z) + y * grid.cells_z + z;
+    }
 
 
     private void OnGUI()
@@ -85,13 +88,13 @@ public class Create_Simulation : EditorWindow
         EditorGUILayout.LabelField("Velocity Configuration", EditorStyles.boldLabel);
         if (grid.velocity == null || grid.velocity.Length != grid.cells_x * grid.cells_y * grid.cells_z)
         {
-            grid.velocity = new Vector3[grid.cells_x, grid.cells_y, grid.cells_z];
+            grid.velocity = new Vector3[grid.cells_x* grid.cells_y* grid.cells_z];
         }
         //Modification de pression
         EditorGUILayout.LabelField("Pressures Configuration", EditorStyles.boldLabel);
         if (grid.pressures == null || grid.pressures.Length != grid.cells_x * grid.cells_y * grid.cells_z)
         {
-            grid.pressures = new float[grid.cells_x, grid.cells_y, grid.cells_z];
+            grid.pressures = new float[grid.cells_x* grid.cells_y* grid.cells_z];
         }
         
         EditorGUILayout.Space();
@@ -158,7 +161,7 @@ public class Create_Simulation : EditorWindow
                         Handles.DrawWireCube(position, Vector3.one * cellSize);
                         if (printVector )
                         {
-                            Vector3 direction = grid.velocity[x, y, z].normalized;
+                            Vector3 direction = grid.velocity[getIndex(x, y, z)].normalized;
                             Vector3 arrowEnd = position + direction * cellSize * 0.5f;
                             Handles.color = Color.green;
                             Handles.DrawLine(position, arrowEnd);
@@ -183,7 +186,7 @@ public class Create_Simulation : EditorWindow
                         Handles.DrawWireCube(position, Vector3.one * cellSize);
                         if (printVector )
                             {
-                                Vector3 direction = grid.velocity[x, y, z].normalized;
+                                Vector3 direction = grid.velocity[getIndex(x, y, z)].normalized;
                                 Vector3 arrowEnd = position + direction * cellSize * 0.5f;
                                 Handles.color = Color.green;
                                 Handles.DrawLine(position, arrowEnd);
@@ -206,7 +209,7 @@ public class Create_Simulation : EditorWindow
             {
                 for (int z = 0; z < grid.cells_z; z++)
                 {
-                    grid.velocity[x, y, z] = new Vector3(Random.Range(-1,1)*2,
+                    grid.velocity[getIndex(x, y, z)] = new Vector3(Random.Range(-1,1)*2,
                         Random.Range(-1,1)*2,
                         Random.Range(-1,1)*2);
                 }
@@ -222,7 +225,7 @@ public class Create_Simulation : EditorWindow
             {
                 for (int z = 0; z < grid.cells_z; z++)
                 {
-                    grid.velocity[x, y, z] = Vector3.zero;
+                    grid.velocity[getIndex(x, y, z)] = Vector3.zero;
                 }
             }
         }
@@ -236,7 +239,7 @@ public class Create_Simulation : EditorWindow
             {
                 for (int z = 0; z < grid.cells_z; z++)
                 {
-                    grid.velocity[x, y, z] = (target.transform.position - new Vector3(x, y, z)).normalized;
+                    grid.velocity[getIndex(x, y, z)] = (target.transform.position - new Vector3(x, y, z)).normalized;
                 }
             }
         }
