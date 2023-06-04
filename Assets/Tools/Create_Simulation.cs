@@ -13,6 +13,7 @@ public class Create_Simulation : EditorWindow
     private bool isHeight;
     private bool isPreview = false;
     private bool printVector;
+    private GameObject target;
    
     
     
@@ -122,6 +123,11 @@ public class Create_Simulation : EditorWindow
             FillVelocityWithNullVector();
         }
         
+        target = EditorGUILayout.ObjectField("Target look at", target, typeof(GameObject), true) as GameObject;
+        if (GUILayout.Button("Velocity = Look at Target"))
+        {
+            FillVelocityWithLookAt();
+        }
        
     }
 
@@ -221,5 +227,19 @@ public class Create_Simulation : EditorWindow
             }
         }
     }
-    
+
+    private void FillVelocityWithLookAt()
+    {
+        for (int x = 0; x < grid.cells_x; x++)
+        {
+            for (int y = 0; y < grid.cells_y; y++)
+            {
+                for (int z = 0; z < grid.cells_z; z++)
+                {
+                    grid.velocity[x, y, z] = (target.transform.position - new Vector3(x, y, z)).normalized;
+                }
+            }
+        }
+    }
+
 }
