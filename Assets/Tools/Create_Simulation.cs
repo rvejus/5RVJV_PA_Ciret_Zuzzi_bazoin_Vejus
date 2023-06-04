@@ -185,13 +185,13 @@ public class Create_Simulation : EditorWindow
                         Handles.color = Color.blue;
                         Handles.DrawWireCube(position, Vector3.one * cellSize);
                         if (printVector )
-                            {
-                                Vector3 direction = grid.velocity[getIndex(x, y, z)].normalized;
-                                Vector3 arrowEnd = position + direction * cellSize * 0.5f;
-                                Handles.color = Color.green;
-                                Handles.DrawLine(position, arrowEnd);
-                                Handles.ArrowHandleCap(0, arrowEnd, Quaternion.LookRotation(direction), cellSize * 0.3f, EventType.Repaint);
-                            }
+                        {
+                            Vector3 direction = grid.velocity[getIndex(x, y, z)].normalized;
+                            Vector3 arrowEnd = position + direction * cellSize * 0.5f;
+                            Handles.color = Color.green;
+                            Handles.DrawLine(position, arrowEnd);
+                            Handles.ArrowHandleCap(0, arrowEnd, Quaternion.LookRotation(direction), cellSize * 0.3f, EventType.Repaint);
+                        }
 
                     }  
                 }
