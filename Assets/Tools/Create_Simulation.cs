@@ -14,7 +14,7 @@ public class Create_Simulation : EditorWindow
     private bool isPreview = false;
     private bool printVector;
     private GameObject target;
-   
+
     
     
     [MenuItem("Fluid Simulation Tools/Create Simulation")]
@@ -132,6 +132,8 @@ public class Create_Simulation : EditorWindow
             FillVelocityWithLookAt();
         }
        
+        grid.syphonGO = EditorGUILayout.ObjectField("Syphon", grid.syphonGO, typeof(GameObject), true) as GameObject;
+        
     }
 
     
@@ -143,9 +145,7 @@ public class Create_Simulation : EditorWindow
             return;
 
         float cellSize = grid.cell_size;
-        
-        Vector3Int currentGridSize = new Vector3Int(grid.cells_x, grid.cells_y, grid.cells_z);
-        
+
         if (isHeight)
         {
             for (int x = 0; x < grid.cells_x; x++)
@@ -159,13 +159,11 @@ public class Create_Simulation : EditorWindow
 
                         Handles.color = Color.blue;
                         Handles.DrawWireCube(position, Vector3.one * cellSize);
-                        if (printVector )
+                        
+                        if (printVector)
                         {
                             Vector3 direction = grid.velocity[getIndex(x, y, z)].normalized;
-                            Vector3 arrowEnd = position + direction * cellSize * 0.5f;
-                            Handles.color = Color.green;
-                            Handles.DrawLine(position, arrowEnd);
-                            Handles.ArrowHandleCap(0, arrowEnd, Quaternion.LookRotation(direction), cellSize * 0.3f, EventType.Repaint);
+                            ArrowDrawer.DrawArrow(position, direction, cellSize);
                         }
                 
                     } 
@@ -176,9 +174,7 @@ public class Create_Simulation : EditorWindow
         {
             for (int x = 0; x < grid.cells_x; x++)
             {
-                for (int y = 0; y < grid.cells_y; y++)
-                {
-                    for (int z = 0; z < grid.cells_z; z++)
+                for (int z = 0; z < grid.cells_z; z++)
                     {
                         Vector3 position = new Vector3(x * cellSize,  cellSize,  z*cellSize);
 
@@ -186,16 +182,11 @@ public class Create_Simulation : EditorWindow
                         Handles.DrawWireCube(position, Vector3.one * cellSize);
                         if (printVector )
                         {
-                            Vector3 direction = grid.velocity[getIndex(x, y, z)].normalized;
-                            Vector3 arrowEnd = position + direction * cellSize * 0.5f;
-                            Handles.color = Color.green;
-                            Handles.DrawLine(position, arrowEnd);
-                            Handles.ArrowHandleCap(0, arrowEnd, Quaternion.LookRotation(direction), cellSize * 0.3f, EventType.Repaint);
+                            Vector3 direction = grid.velocity[getIndex(x, 0, z)].normalized;
+                            ArrowDrawer.DrawArrow(position, direction, cellSize);
                         }
 
-                    }  
-                }
-                
+                    }
             }
         }
     }
@@ -215,6 +206,7 @@ public class Create_Simulation : EditorWindow
                 }
             }
         }
+        Debug.Log(grid.velocity[0]);
     }
     
     private void FillVelocityWithNullVector()
@@ -233,16 +225,30 @@ public class Create_Simulation : EditorWindow
 
     private void FillVelocityWithLookAt()
     {
+        Vector3 targetPosition = target.transform.position;
         for (int x = 0; x < grid.cells_x; x++)
         {
             for (int y = 0; y < grid.cells_y; y++)
             {
                 for (int z = 0; z < grid.cells_z; z++)
                 {
-                    grid.velocity[getIndex(x, y, z)] = (target.transform.position - new Vector3(x, y, z)).normalized;
+                    grid.velocity[getIndex(x, y, z)] = ( targetPosition- new Vector3(x, y, z)).normalized;
                 }
             }
         }
     }
+}
 
+
+public class ArrowDrawer
+{
+    private static readonly Color ArrowColor = Color.green;
+    private static readonly float ArrowScale = 0.3f;
+
+    public static void DrawArrow(Vector3 position, Vector3 direction, float cellSize)
+    {
+        Handles.color = ArrowColor;
+        Handles.DrawLine(position, position + direction * cellSize * 0.5f);
+        Handles.ArrowHandleCap(0, position + direction * cellSize * 0.5f, Quaternion.LookRotation(direction), cellSize * ArrowScale, EventType.Repaint);
+    }
 }
