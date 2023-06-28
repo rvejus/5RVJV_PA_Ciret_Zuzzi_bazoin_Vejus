@@ -1,10 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Jobs;
 using Unity.Jobs;
 using Random = UnityEngine.Random;
 
@@ -40,6 +37,10 @@ public class GridSM : MonoBehaviour
     private JobHandle ProjetionJobHandle;
     UpdateProjectionJob _updateProjectionJob;
     public GameObject spawnPoint;
+    public GameObject syphonGO;
+    public Pooling pool;
+    
+
     int getIndex(int x, int y, int z)
     {
         return x * (cells_y * cells_z) + y * cells_z + z;
@@ -47,6 +48,7 @@ public class GridSM : MonoBehaviour
     void Awake()
     {
         //Init Grid et bubulles
+        pool = new Pooling(nbBubulle, bubullePrefab);
         Vector3 gridOrg = transform.position;
         velocity = new Vector3[cells_x*cells_y*cells_z];
         pressures = new float[cells_x*cells_y*cells_z];
@@ -87,7 +89,9 @@ public class GridSM : MonoBehaviour
             Vector3 pos = new Vector3(Random.Range(0 + gridOrg.x, cells_x + gridOrg.x),
                 Random.Range(0 + gridOrg.y, cells_y + gridOrg.y),
                 Random.Range(0 + gridOrg.z, cells_z + gridOrg.z));
-            GameObject bubulle = Instantiate(bubullePrefab, pos, Quaternion.identity);
+            GameObject bubulle = pool.ActiveObject();
+            bubulle.transform.position = pos;
+            bubulle.transform.rotation = Quaternion.identity;
             bubulles.Add(bubulle);
             bubullesT.Add(bubulle.transform);
             bubulle.transform.parent = transform;
