@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.VisualScripting;
 using Random = UnityEngine.Random;
 
 public class GridSM : MonoBehaviour
@@ -134,7 +136,6 @@ public class GridSM : MonoBehaviour
         AdvectioJobHandle.Complete();
         for (int i = 0; i < bubullesPos.Length; i++)
         {
-            bubulles[i].transform.position=bubullesPos_j[i];
             bubulles[i].GetComponent<Rigidbody>().velocity=bubullesVel_j[i];
         }
         //Init pressures à 0
@@ -153,8 +154,8 @@ public class GridSM : MonoBehaviour
         {
             for (int j = 0; i < velocity.Length; i++)
             {
-                velocity[j] = velocity_j[i];
-                pressures[j] = pressure_j[j];
+                velocity_j[j] = velocity[i];
+                pressure_j[j] = pressures[j];
                 //divergence[j] = divergence_j[j];
             }
 
@@ -173,6 +174,14 @@ public class GridSM : MonoBehaviour
             };
             ProjetionJobHandle = _updateProjectionJob.Schedule();
             ProjetionJobHandle.Complete();
+            
+            for (int j = 0; i < velocity.Length; i++)
+            {
+                velocity[j] = velocity_j[i];
+                pressures[j] = pressure_j[j];
+                //divergence[j] = divergence_j[j];
+            }
+            
         }
     }
     [BurstCompile]
@@ -197,6 +206,9 @@ public class GridSM : MonoBehaviour
             float maxx = gridPos.x + cells_x_j;
             float maxy = gridPos.y + cells_y_j;
             float maxz = gridPos.z + cells_z_j;
+            
+            
+            
             Vector3 bubullepos = bubullePos[index];
             Vector3 vel = TrilinearInterpolate(velocity, bubullepos);
             Vector3 newpos = bubullepos + dt * vel;
