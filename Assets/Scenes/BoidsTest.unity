@@ -541,9 +541,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e6cdc96b38908046bad242d85df09f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cells_x: 20
-  cells_y: 10
-  cells_z: 20
+  cells_x: 30
+  cells_y: 20
+  cells_z: 30
   cell_size: 1
   nbBubulle: 500
   maxIterProjection: 2
@@ -8718,12 +8718,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 714f906014d95cc49b4af330da2d65e2, type: 2}
   compute: {fileID: 7200000, guid: 08ae1c26dc3edd048aa6245740705d16, type: 3}
-  SavageboidsNumber: 0
+  SavageboidsNumber: 1
   boids: []
   boidPrefab: {fileID: 3535460211218717972, guid: 0ef65299ae778594c9740aee90fb7b0c,
     type: 3}
   targets: []
-  boidsPerTarget: 2
+  boidsPerTarget: 0
   spawnPoint: {fileID: 696826341}
 --- !u!4 &652724767
 Transform:
@@ -9787,5 +9787,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 804f88db8b8fc1c44a0ab821400889bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previousFrameTexture: {fileID: 0}
-  motionBlurMaterial: {fileID: 2100000, guid: 0f7b4652df4e8994fad619d4099ec3d7, type: 2}
