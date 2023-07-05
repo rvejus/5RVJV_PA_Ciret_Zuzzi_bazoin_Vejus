@@ -147,38 +147,29 @@ public class GridSM : MonoBehaviour
         {
             velocity[j] = velocity_j[j];
             pressures[j] = pressure_j[j];
+            divergence[j] = 0.0f;
+            divergence_j[j] = 0.0f;
         }
-        for (int i = 0; i < maxIterProjection; i++)
+        _updateProjectionJob = new UpdateProjectionJob()
         {
-            for (int j = 0; j < velocity.Length; j++)
-            {
-                velocity_j[j] = velocity[j];
-                pressure_j[j] = pressures[j];
-            }
-
-            _updateProjectionJob = new UpdateProjectionJob()
-            {
-                cells_x_j = cells_x,
-                cells_y_j = cells_y,
-                cells_z_j = cells_y,
-                velocity = velocity_j,
-                pressures = pressure_j,
-                divergence = divergence_j,
-                maxIterPoisson =  maxIterPoisson,
-                maxIterProjection = maxIterProjection,
-                dt = Time.deltaTime
-            };
-            ProjetionJobHandle = _updateProjectionJob.Schedule();
-            ProjetionJobHandle.Complete();
+            cells_x_j = cells_x,
+            cells_y_j = cells_y,
+            cells_z_j = cells_y,
+            velocity = velocity_j,
+            pressures = pressure_j,
+            divergence = divergence_j,
+            maxIterPoisson =  maxIterPoisson,
+            maxIterProjection = maxIterProjection,
+            dt = Time.deltaTime
+        };
+        ProjetionJobHandle = _updateProjectionJob.Schedule();
+        ProjetionJobHandle.Complete();
             
-            for (int j = 0; j < velocity.Length; j++)
-            {
-                velocity[j] = velocity_j[j];
-                pressures[j] = pressure_j[j];
-            }
-            
+        for (int j = 0; j < velocity.Length; j++)
+        {
+            velocity[j] = velocity_j[j];
+            pressures[j] = pressure_j[j];
         }
-        Debug.Log(velocity[0]);
     }
 
     public void WrapAround( Vector3 position)
@@ -312,12 +303,13 @@ public class GridSM : MonoBehaviour
                     {
                         for (int z = 1; z < cells_z_j - 1; z++)
                         {
-                            divergence[getIndex(x,y,z)] = (velocity[getIndex(x+1,y,z)].x - velocity[getIndex(x-1,y,z)].x + 
-                                                  velocity[getIndex(x,y+1,z)].y - velocity[getIndex(x,y-1,z)].y +
-                                                  velocity[getIndex(x,y,z+1)].z - velocity[getIndex(x,y,z-1)].z)/6;
+                            divergence[getIndex(x,y,z)] = (velocity[getIndex(x+1,y,z)].x - velocity[getIndex(x-1,y,z)].x)/2 + 
+                                                  (velocity[getIndex(x,y+1,z)].y - velocity[getIndex(x,y-1,z)].y)/2 +
+                                                  (velocity[getIndex(x,y,z+1)].z - velocity[getIndex(x,y,z-1)].z)/2;
                         }
                     }
                 }
+                
                 //Utilisation d'un solveur de poisson pour corriger la pression et permettre de mettre une bonne vélocité sur les cellules
                 SolvePoisson();
                 // On corrige la velocité pour chacune des cellules de la grille
@@ -327,17 +319,16 @@ public class GridSM : MonoBehaviour
                     {
                         for (int z = 1; z < cells_z_j - 1; z++)
                         {
-                            Vector3 pressureForce = new Vector3((pressures[getIndex(x+1,y,z)] - pressures[getIndex(x-1,y,z)]) / (2 * cells_x_j),
-                                (pressures[getIndex(x,y+1,z)] - pressures[getIndex(x,y-1,z)]) / (2 * cells_y_j),
-                                (pressures[getIndex(x,y,z+1)] - pressures[getIndex(x,y,z-1)]) / (2 * cells_z_j));
-                            velocity[getIndex(x,y,z)] -= pressureForce*dt;
+                            Vector3 pressureForce = new Vector3((pressures[getIndex(x+1,y,z)] - pressures[getIndex(x-1,y,z)]) / 2,
+                                (pressures[getIndex(x,y+1,z)] - pressures[getIndex(x,y-1,z)]) / 2,
+                                (pressures[getIndex(x,y,z+1)] - pressures[getIndex(x,y,z-1)]) / 2);
                             
                             Vector3 velocityCorrection = new Vector3(
-                                (velocity[getIndex(x + 1, y, z)].x - velocity[getIndex(x - 1, y, z)].x) / (2 * cells_x_j),
-                                (velocity[getIndex(x, y + 1, z)].y - velocity[getIndex(x, y - 1, z)].y) / (2 * cells_y_j),
-                                (velocity[getIndex(x, y, z + 1)].z - velocity[getIndex(x, y, z - 1)].z) / (2 * cells_z_j));
-
-                            velocity[getIndex(x, y, z)] -= velocityCorrection;
+                                (velocity[getIndex(x + 1, y, z)].x - velocity[getIndex(x - 1, y, z)].x) / 2,
+                                (velocity[getIndex(x, y + 1, z)].y - velocity[getIndex(x, y - 1, z)].y) / 2,
+                                (velocity[getIndex(x, y, z + 1)].z - velocity[getIndex(x, y, z - 1)].z) / 2);
+                            velocity[getIndex(x,y,z)] -= (pressureForce*dt)+(velocityCorrection*dt);
+                            //Debug.Log("x= " +velocity[getIndex(x,y,z)].x+" y= " +velocity[getIndex(x,y,z)].y+" z= " +velocity[getIndex(x,y,z)].z);
                         }
                     }
                 }
@@ -366,15 +357,12 @@ public class GridSM : MonoBehaviour
                     {
                         for (int z = 1; z < cells_z_j - 1; z++)
                         {
-                            float divergenceTerm = (velocity[getIndex(x + 1, y, z)].x - velocity[getIndex(x - 1, y, z)].x +
-                                velocity[getIndex(x, y + 1, z)].y - velocity[getIndex(x, y - 1, z)].y +
-                                velocity[getIndex(x, y, z + 1)].z - velocity[getIndex(x, y, z - 1)].z) / 6.0f;
 
-                            
+
                             float newPressure = (pressures[getIndex(x - 1, y, z)] + pressures[getIndex(x + 1, y, z)] +
                                                  pressures[getIndex(x, y - 1, z)] + pressures[getIndex(x, y + 1, z)] +
                                                  pressures[getIndex(x, y, z - 1)] + pressures[getIndex(x, y, z + 1)] -
-                                                 divergenceTerm) / 6.0f;
+                                                 divergence[getIndex(x,y,z)]) / 6.0f;
                             error += Mathf.Abs(newPressure - pressures[getIndex(x, y, z)]);
                             pressures[getIndex(x, y, z)] = newPressure;
                         }
