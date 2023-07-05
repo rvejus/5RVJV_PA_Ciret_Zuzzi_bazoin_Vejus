@@ -141,7 +141,7 @@ public class GridSM : MonoBehaviour
         for (int i = 0; i < bubullesPos.Length; i++)
         {
             bubulles[i].transform.position=bubullesPos_j[i];
-            bubulles[i].GetComponent<Rigidbody>().velocity=bubullesVel_j[i];
+            bubulles[i].GetComponent<Rigidbody>().AddForce(bubullesVel_j[i],ForceMode.VelocityChange);
         }
         for (int j = 0; j < velocity.Length; j++)
         {
@@ -218,7 +218,7 @@ public class GridSM : MonoBehaviour
             Vector3 vel = TrilinearInterpolate(velocity, bubullepos);
             Vector3 newpos = bubullepos + dt * vel;
             vel = TrilinearInterpolate(velocity, newpos);
-            bubulleVel[index] = new Vector3(vel.x, vel.y + bubulleVel[index].y, vel.z);
+            bubulleVel[index] = new Vector3(vel.x, vel.y, vel.z);
             if (newpos.x < minx || newpos.x >= maxx || newpos.y < miny || newpos.y >= maxy || newpos.z < minz ||
                 newpos.z >= maxz)
             {

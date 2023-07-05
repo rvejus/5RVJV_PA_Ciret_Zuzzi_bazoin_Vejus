@@ -15,7 +15,7 @@ public class Bubulle : MonoBehaviour
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
-        rigidbody.mass = 1.0f;
+        rigidbody.mass = 10.0f;
         volume = 4 / 3 * Mathf.PI * Mathf.Pow(GetComponent<SphereCollider>().radius, 3);
         density = rigidbody.mass / volume;
     }
