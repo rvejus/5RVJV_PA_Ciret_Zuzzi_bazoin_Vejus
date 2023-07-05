@@ -49,7 +49,9 @@ Shader "Custom/BillboardCircle"
             float _Radius;
             sampler2D _MainTex;
             float4 _MainTex_ST;
-
+            sampler2D _PreviousFrameTex;
+            float4 _PreviousFrameBlend = float4(0.9, 0.9, 0.9, 1.0);
+            
             UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
             UNITY_INSTANCING_BUFFER_END(Props)
