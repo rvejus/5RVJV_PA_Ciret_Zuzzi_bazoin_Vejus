@@ -6,6 +6,6 @@ public class SetWorldPosZero : MonoBehaviour
 {
     void LateUpdate()
     {
-        transform.position = Vector3.zero;
+        transform.rotation = Quaternion.Euler(Vector3.zero);
     }
 }
