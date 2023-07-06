@@ -27,6 +27,7 @@ public class BoidManager : MonoBehaviour {
         //boids = FindObjectsOfType<Boid> ();
         boidsNumber = SavageboidsNumber + (targets.Count * boidsPerTarget);
         boids = new Boid[boidsNumber];
+        Debug.Log(boids.Length);
         for (int i = 0; i < boidsNumber; i++)
         {
             GameObject curBoid = Instantiate(boidPrefab, spawnPoint);
@@ -41,13 +42,13 @@ public class BoidManager : MonoBehaviour {
             {
                 Boid b = boids[latestBoid];
                 b.Initialize (settings, targets[i]);
+                b.transform.position = targets[i].position;
             }
-
             if (latestBoid < boids.Length)
             {
                 for (int j = latestBoid; j < boids.Length; j++)
                 {
-                    Boid b = boids[j];
+                    Boid b = boids[latestBoid];
                     b.Initialize (settings, null);
                 }
             }
