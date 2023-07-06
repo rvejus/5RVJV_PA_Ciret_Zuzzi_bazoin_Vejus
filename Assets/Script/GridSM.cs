@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using Random = UnityEngine.Random;
 
@@ -66,6 +67,7 @@ public class GridSM : MonoBehaviour
             {
                 for (int k = 0; k < cells_z; k++)
                 {
+                    
                     //velocity[i, j, k] = Vector3.zero;
                     initPress[i * (cells_y * cells_z) + j * cells_z + k] = 0.0f;
                     velocity[i*(cells_y*cells_z)+j*cells_z+k] = new Vector3(Random.Range(-1,1)*2,
@@ -88,15 +90,16 @@ public class GridSM : MonoBehaviour
         List<Transform> bubullesT = new List<Transform>();
         for (int i = 0; i < nbBubulle; i++)
         {
-            Vector3 pos = new Vector3(Random.Range(0 + gridOrg.x, cells_x + gridOrg.x),
-                cells_y-0.1f,
-                Random.Range(0 + gridOrg.z, cells_z + gridOrg.z));
+            Vector3 pos = GetRandomPositionInSpawnArea();
             GameObject bubulle = pool.ActiveObject();
+            
             bubulle.transform.position = pos;
             bubulle.transform.rotation = Quaternion.identity;
             bubulles.Add(bubulle);
             bubullesT.Add(bubulle.transform);
             bubulle.transform.parent = transform;
+
+            
             bubulle.GetComponent<Bubulle>().velocity = new Vector3(Random.Range(-0.1f,0.1f),
                 Random.Range(-0.1f,0.1f),
                 Random.Range(-0.1f,0.1f));
@@ -172,6 +175,20 @@ public class GridSM : MonoBehaviour
         }
     }
 
+    
+
+    private Vector3 GetRandomPositionInSpawnArea()
+    {
+        Vector3 center = spawnPoint.GetComponent<BoxCollider>().bounds.center;
+        Vector3 size = spawnPoint.GetComponent<BoxCollider>().bounds.size;
+
+        float randomX = Random.Range(center.x - size.x / 2, center.x + size.x / 2);
+        float randomY = Random.Range(center.y - size.y / 2, center.y + size.y / 2);
+        float randomZ = Random.Range(center.z - size.z / 2, center.z + size.z / 2);
+
+        return new Vector3(randomX, randomY, randomZ);
+    }
+    
     public void WrapAround( Vector3 position)
     {
         if (position.x < minx)
