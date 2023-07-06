@@ -8723,7 +8723,7 @@ MonoBehaviour:
   boidPrefab: {fileID: 3535460211218717972, guid: 0ef65299ae778594c9740aee90fb7b0c,
     type: 3}
   targets: []
-  boidsPerTarget: 2
+  boidsPerTarget: 0
   spawnPoint: {fileID: 696826341}
 --- !u!4 &652724767
 Transform:
