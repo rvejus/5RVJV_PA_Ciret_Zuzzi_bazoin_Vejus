@@ -756,6 +756,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8295421f8700e244f881688590620926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boidManager: {fileID: 652724766}
+  maxDiff: 0.5
 --- !u!1 &421586470
 GameObject:
   m_ObjectHideFlags: 0
@@ -3065,6 +3067,7 @@ MonoBehaviour:
   boidPrefab: {fileID: 3535460211218717972, guid: 0ef65299ae778594c9740aee90fb7b0c,
     type: 3}
   targets: []
+  boidsTrans: []
   boidsPerTarget: 10
   spawnPoint: {fileID: 696826341}
 --- !u!4 &652724767

@@ -52,6 +52,7 @@ public class Boid : MonoBehaviour {
     }
 
     public void UpdateBoid () {
+        
         Vector3 acceleration = Vector3.zero;
 
         if (target != null) {
