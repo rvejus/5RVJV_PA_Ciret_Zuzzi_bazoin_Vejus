@@ -112,7 +112,7 @@ public class GridSM : MonoBehaviour
         newPressure = new NativeArray<float>(initPress, Allocator.TempJob);
         boidsManager.targets = bubullesT;
     }
-    void Update()
+    void FixedUpdate()
     {
         //Updating positions & velocity with physics interactions
         for (int i = 0; i < bubullesPos.Length; i++)
@@ -141,7 +141,7 @@ public class GridSM : MonoBehaviour
         for (int i = 0; i < bubullesPos.Length; i++)
         {
             bubulles[i].transform.position=bubullesPos_j[i];
-            bubulles[i].GetComponent<Rigidbody>().AddForce(bubullesVel_j[i],ForceMode.VelocityChange);
+            bubulles[i].GetComponent<Rigidbody>().AddForce(bubullesVel_j[i],ForceMode.Impulse);
         }
         for (int j = 0; j < velocity.Length; j++)
         {
@@ -194,7 +194,6 @@ public class GridSM : MonoBehaviour
     {
         [ReadOnly]
         public int cells_x_j, cells_y_j, cells_z_j;
-
         public NativeArray<Vector3> bubullePos;
         public NativeArray<Vector3> bubulleVel;
         [ReadOnly]
@@ -211,8 +210,6 @@ public class GridSM : MonoBehaviour
             float maxx = gridPos.x + cells_x_j;
             float maxy = gridPos.y + cells_y_j;
             float maxz = gridPos.z + cells_z_j;
-            
-            
             
             Vector3 bubullepos = bubullePos[index];
             Vector3 vel = TrilinearInterpolate(velocity, bubullepos);
@@ -257,9 +254,9 @@ public class GridSM : MonoBehaviour
             int y1 = (int)(Mathf.Repeat(y0+1 - miny, maxy) + miny);
             int z1 = (int)(Mathf.Repeat(z0+1 - minz, maxz) + minz);
 
-            float xd = (int)(Mathf.Repeat(gridPosition.x-x0 - minx, maxx) + minx);
-            float yd = (int)(Mathf.Repeat(gridPosition.y-y0 - miny, maxy) + miny);
-            float zd = (int)(Mathf.Repeat(gridPosition.z-z0 - miny, maxy) + miny);
+            float xd = (Mathf.Repeat(gridPosition.x-x0 - minx, maxx));
+            float yd = (Mathf.Repeat(gridPosition.y-y0 - miny, maxy));
+            float zd = (Mathf.Repeat(gridPosition.z-z0 - minz, maxz));
             
             //Interpolation en x
             Vector3 c00 = gridData[getIndex(x0, y0, z0)] * (1 - xd) + gridData[getIndex(x1, y0, z0)] * xd;
