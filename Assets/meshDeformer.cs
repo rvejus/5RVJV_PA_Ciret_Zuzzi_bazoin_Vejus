@@ -11,22 +11,73 @@ public class meshDeformer : MonoBehaviour
     private Vector3[] boidsTrans;
     [SerializeField]
     private BoidManager boidManager;
+    [SerializeField]
+    private GridSM _gridSm;
     private int trianglesNum;
     [SerializeField][Range(0.0f,0.5f)]
     private float maxDiff=0.1f;
+    private int Xsize;
+    private int Zsize;
+    [SerializeField]
+    private GameObject prefabVisu;
     private void Start()
     {
-        deformingMesh = GetComponent<MeshFilter>().mesh;
-        ogVertices = deformingMesh.vertices;
-        trianglesNum = deformingMesh.triangles.Length;
-        vertexVelocities = new Vector3[ogVertices.Length];
+        deformingMesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = deformingMesh;
+        Xsize = _gridSm.cells_x;
+        Zsize = _gridSm.cells_z;
+        float ypos = transform.position.y;
+        ogVertices = new Vector3[(Xsize+1) * (Zsize+1)];
+        Debug.Log(ogVertices.Length);
+        Vector2[] uv = new Vector2[ogVertices.Length];
+        Debug.Log(uv.Length);
+        Vector4[] tangents = new Vector4[ogVertices.Length];
+        Debug.Log(tangents.Length);
+        Vector4 tangent = new Vector4(1f, 0f, 0f, -1f);
+        for (int i = 0, z=0; z <= Zsize; z++)
+        {
+            for (int x = 0; x <= Xsize; i++, x++)
+            {
+                ogVertices[i] = new Vector3(x, 0, z);
+                uv[i] = new Vector2((float)x / Xsize, (float)z / Zsize);
+                tangents[i] = tangent;
+                //Instantiate(prefabVisu, ogVertices[i], Quaternion.Euler(Vector3.zero));
+            }
+        }
+
+        deformingMesh.vertices = ogVertices;
+        deformingMesh.uv = uv;
+        deformingMesh.tangents = tangents;
         displacedVertices = new Vector3[ogVertices.Length];
         for (int i = 0; i < ogVertices.Length; i++)
         {
             displacedVertices[i] = ogVertices[i];
         }
+        reconstructMesh();
     }
 
+    private void reconstructMesh()
+    {
+        //Reconstructing Mesh
+        //Debug.Log("nb dis vertices: "+ displacedVertices.Length);
+        //Debug.Log("reconstruct: "+displacedVertices.Length);
+        deformingMesh.vertices = displacedVertices;
+        int[] triangles = new int[Xsize * Zsize * 6];
+        for (int ti = 0, vi = 0, z = 0; z < Zsize; z++, vi++) {
+            for (int x = 0; x < Xsize; x++, ti += 6, vi++) {
+                triangles[ti] = vi;
+                triangles[ti + 3] = triangles[ti + 2] = vi + 1;
+                triangles[ti + 4] = triangles[ti + 1] = vi + Xsize + 1;
+                triangles[ti + 5] = vi + Xsize + 2;
+            }
+        }
+        deformingMesh.triangles = triangles;
+        
+        deformingMesh.RecalculateNormals();
+        deformingMesh.RecalculateTangents();
+        GetComponent<MeshFilter>().mesh = deformingMesh;
+        
+    }
     private void Update()
     {
         boidsTrans = boidManager.boidsTrans;
@@ -52,22 +103,6 @@ public class meshDeformer : MonoBehaviour
                 displacedVertices[i].y -= (displacedVertices[i].y - ogVertices[i].y)*dt;
             }
         }
-        //Reconstructing Mesh
-        Debug.Log("nb dis vertices: "+ displacedVertices.Length);
-        deformingMesh.vertices = displacedVertices;
-        List<int> triangles = new List<int>(trianglesNum);
-        deformingMesh.triangles = new int[trianglesNum];
-        for(int i=0; i<trianglesNum; i+=6)
-        {
-            triangles.Add(i);
-            triangles.Add(i+2);
-            triangles.Add(i+1);
-            Debug.Log("k le plus haut: "+(i+2));
-        }
-
-        deformingMesh.triangles = triangles.ToArray();
-        deformingMesh.RecalculateNormals();
-        deformingMesh.RecalculateTangents();
-        GetComponent<MeshFilter>().mesh = deformingMesh;
+        reconstructMesh();
     }
 }
