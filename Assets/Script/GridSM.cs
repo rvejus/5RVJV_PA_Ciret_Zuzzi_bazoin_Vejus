@@ -89,7 +89,7 @@ public class GridSM : MonoBehaviour
         for (int i = 0; i < nbBubulle; i++)
         {
             Vector3 pos = new Vector3(Random.Range(0 + gridOrg.x, cells_x + gridOrg.x),
-                Random.Range(0 + gridOrg.y, cells_y + gridOrg.y),
+                cells_y-0.1f,
                 Random.Range(0 + gridOrg.z, cells_z + gridOrg.z));
             GameObject bubulle = pool.ActiveObject();
             bubulle.transform.position = pos;

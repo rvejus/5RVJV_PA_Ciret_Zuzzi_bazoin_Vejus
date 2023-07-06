@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3535460211218717973}
   - component: {fileID: 3535460211218717974}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Boid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,6 +151,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f30757bb99d77d748ad24209d3dfcdc5,
         type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f30757bb99d77d748ad24209d3dfcdc5,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -187,10 +192,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3934671809084347441}
     m_Modifications:
+    - target: {fileID: 1839820634409521842, guid: 7dea1530548a8364ebed34008595d04a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 5122495324394048962, guid: 7dea1530548a8364ebed34008595d04a,
         type: 3}
       propertyPath: m_Name
       value: WaterBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 5122495324394048962, guid: 7dea1530548a8364ebed34008595d04a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5122495324394048962, guid: 7dea1530548a8364ebed34008595d04a,
         type: 3}
