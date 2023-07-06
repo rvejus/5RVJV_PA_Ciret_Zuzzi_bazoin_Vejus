@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 50668141499144131}
   - component: {fileID: 8923883929305085311}
   - component: {fileID: 6110999126060525790}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: bubulle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53,6 +53,7 @@ MonoBehaviour:
   density: 0
   pressure: 0
   volume: 0
+  lastPos: {x: 0, y: 0, z: 0}
   rigidbody: {fileID: 0}
 --- !u!54 &1943612415551218414
 Rigidbody:
@@ -140,10 +141,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5515152191891039005}
     m_Modifications:
+    - target: {fileID: 1839820634409521842, guid: 7dea1530548a8364ebed34008595d04a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 5122495324394048962, guid: 7dea1530548a8364ebed34008595d04a,
         type: 3}
       propertyPath: m_Name
       value: WaterBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 5122495324394048962, guid: 7dea1530548a8364ebed34008595d04a,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5122495324394048967, guid: 7dea1530548a8364ebed34008595d04a,
         type: 3}

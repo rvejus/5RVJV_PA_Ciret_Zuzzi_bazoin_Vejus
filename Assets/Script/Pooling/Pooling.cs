@@ -25,6 +25,7 @@ public class Pooling : MonoBehaviour
          if (!obj.gameObject.activeInHierarchy)
          {
             obj.gameObject.SetActive(true);
+            DisableCollisionForDuration(obj);
             return obj;
          }
       }
@@ -34,5 +35,16 @@ public class Pooling : MonoBehaviour
    public void DesactiveObject(GameObject obj)
    {
       obj.gameObject.SetActive(false);
+   }
+   
+   
+   private IEnumerable<WaitForSeconds> DisableCollisionForDuration(GameObject obj)
+   {
+      gameObject.GetComponent<Rigidbody>().isKinematic = true;
+
+      yield return new WaitForSeconds(5f);
+
+   
+      gameObject.GetComponent<Rigidbody>().isKinematic = false;
    }
 }
