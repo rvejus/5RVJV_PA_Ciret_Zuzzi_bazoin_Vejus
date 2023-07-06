@@ -20,6 +20,7 @@ public class BoidManager : MonoBehaviour {
     public Boid[] boids;
     [SerializeField] public GameObject boidPrefab;
     public List<Transform> targets = null;
+    public Vector3[] boidsTrans;
     [SerializeField]
     public int boidsPerTarget=1;
     [SerializeField] public Transform spawnPoint;
@@ -27,10 +28,12 @@ public class BoidManager : MonoBehaviour {
         //boids = FindObjectsOfType<Boid> ();
         boidsNumber = SavageboidsNumber + (targets.Count * boidsPerTarget);
         boids = new Boid[boidsNumber];
+        boidsTrans = new Vector3[boidsNumber];
         Debug.Log(boids.Length);
         for (int i = 0; i < boidsNumber; i++)
         {
             GameObject curBoid = Instantiate(boidPrefab, spawnPoint);
+            boidsTrans[i] = curBoid.transform.position;
             /*Vector3 curPos = curBoid.transform.position;
             curBoid.transform.position = new Vector3(curPos.x + Random.Range(-1.0f, 1.0f),
                 curPos.y + Random.Range(-1.0f, 1.0f), curPos.z + Random.Range(-1.0f, 1.0f));*/
