@@ -545,7 +545,7 @@ MonoBehaviour:
   cells_y: 20
   cells_z: 30
   cell_size: 1
-  nbBubulle: 500
+  nbBubulle: 50
   maxIterProjection: 2
   maxIterPoisson: 2
   velocity:
@@ -8718,12 +8718,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 714f906014d95cc49b4af330da2d65e2, type: 2}
   compute: {fileID: 7200000, guid: 08ae1c26dc3edd048aa6245740705d16, type: 3}
-  SavageboidsNumber: 1
+  SavageboidsNumber: 0
   boids: []
   boidPrefab: {fileID: 3535460211218717972, guid: 0ef65299ae778594c9740aee90fb7b0c,
     type: 3}
   targets: []
-  boidsPerTarget: 2
+  boidsPerTarget: 5
   spawnPoint: {fileID: 696826341}
 --- !u!4 &652724767
 Transform:
