@@ -65,6 +65,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SceneColorDistortion_c4787102d3604fd2b6135b99b3e51a0a_Normal_2768151450:
+        m_Texture: {fileID: 2800000, guid: f4bf9cb94f2260b44bb5562fe2b7a488, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}

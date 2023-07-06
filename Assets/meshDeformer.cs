@@ -14,8 +14,10 @@ public class meshDeformer : MonoBehaviour
     [SerializeField]
     private GridSM _gridSm;
     private int trianglesNum;
-    [SerializeField][Range(0.0f,0.5f)]
+    [SerializeField][Range(0.0f,1f)]
     private float maxDiff=0.1f;
+    [SerializeField][Range(0.1f,1f)]
+    private float amplify=1f;
     private int Xsize;
     private int Zsize;
     [SerializeField]
@@ -86,14 +88,19 @@ public class meshDeformer : MonoBehaviour
         for (int i = 0; i < displacedVertices.Length; i++)
         {
             bool isBoid = false;
+            float actDiff = 1000.0f;
             for (int j = 0; j < boidsTrans.Length; j++)
             {
                 float diff = Vector3.Distance(displacedVertices[i], boidsTrans[j]);
                 diff = Mathf.Abs(diff);
-                if (diff <= maxDiff && !isBoid)
+                if (diff <= maxDiff)
                 {
                     //Debug.Log("test");
-                    displacedVertices[i].y -= (boidsTrans[j].y-displacedVertices[i].y)*dt;
+                    if (diff < actDiff)
+                    {
+                        actDiff = diff;
+                    }
+                    //displacedVertices[i].y -= (boidsTrans[j].y-displacedVertices[i].y)*dt*amplify;
                     isBoid = true;
                 }
             }
@@ -101,6 +108,10 @@ public class meshDeformer : MonoBehaviour
             if (!isBoid)
             {
                 displacedVertices[i].y -= (displacedVertices[i].y - ogVertices[i].y)*dt;
+            }
+            else
+            {
+                displacedVertices[i].y -= actDiff * dt * amplify;
             }
         }
         reconstructMesh();
