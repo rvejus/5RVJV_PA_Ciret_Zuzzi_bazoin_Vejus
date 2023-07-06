@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3714904386809534188}
   - component: {fileID: 2727319434727246040}
   - component: {fileID: 3697600272191686315}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WaterBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4823,7 +4823,7 @@ GameObject:
   - component: {fileID: 5122495324394048967}
   - component: {fileID: 5122495324394048964}
   - component: {fileID: 5122495324394048965}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WaterBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}

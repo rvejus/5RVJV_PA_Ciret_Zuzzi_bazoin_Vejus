@@ -115,23 +115,20 @@ public class GridSM : MonoBehaviour
         newPressure = new NativeArray<float>(initPress, Allocator.TempJob);
         boidsManager.targets = bubullesT;
     }
+
     void FixedUpdate()
     {
         //Updating positions & velocity with physics interactions
         for (int i = 0; i < bubullesPos.Length; i++)
         {
             bubullesPos_j[i] = bubulles[i].transform.position;
-            bubullesVel_j[i]=bubulles[i].GetComponent<Rigidbody>().velocity;
-        }
-        for (int i = 0; i < bubulles.Count; i++)
-        {
-            WrapAround( bubulles[i].transform.position);
+            bubullesVel_j[i] = bubulles[i].GetComponent<Rigidbody>().velocity;
         }
         _updateAdvectionJob = new UpdateAdvectionJob()
         {
             cells_x_j = cells_x,
             cells_y_j = cells_y,
-            cells_z_j = cells_y,
+            cells_z_j = cells_z,
             velocity = velocity_j,
             dt = Time.deltaTime,
             gridPos = transform.position,
@@ -143,39 +140,49 @@ public class GridSM : MonoBehaviour
         AdvectioJobHandle.Complete();
         for (int i = 0; i < bubullesPos.Length; i++)
         {
-            bubulles[i].transform.position=bubullesPos_j[i];
-            bubulles[i].GetComponent<Rigidbody>().AddForce(bubullesVel_j[i],ForceMode.Impulse);
+            bubulles[i].transform.position = bubullesPos_j[i];
+            bubulles[i].GetComponent<Rigidbody>().AddForce(bubullesVel_j[i], ForceMode.Impulse);
         }
-        for (int j = 0; j < velocity.Length; j++)
+        
+        for (int i = 0; i < bubulles.Count; i++)
         {
-            velocity[j] = velocity_j[j];
-            pressures[j] = pressure_j[j];
-            divergence[j] = 0.0f;
-            divergence_j[j] = 0.0f;
+           
+            WrapAround(bubulles[i]);
         }
-        _updateProjectionJob = new UpdateProjectionJob()
-        {
-            cells_x_j = cells_x,
-            cells_y_j = cells_y,
-            cells_z_j = cells_y,
-            velocity = velocity_j,
-            pressures = pressure_j,
-            divergence = divergence_j,
-            maxIterPoisson =  maxIterPoisson,
-            maxIterProjection = maxIterProjection,
-            dt = Time.deltaTime
-        };
-        ProjetionJobHandle = _updateProjectionJob.Schedule();
-        ProjetionJobHandle.Complete();
-            
-        for (int j = 0; j < velocity.Length; j++)
-        {
-            velocity[j] = velocity_j[j];
-            pressures[j] = pressure_j[j];
-        }
+
+        
+            for (int j = 0; j < velocity.Length; j++)
+            {
+                velocity[j] = velocity_j[j];
+                pressures[j] = pressure_j[j];
+                divergence[j] = 0.0f;
+                divergence_j[j] = 0.0f;
+            }
+
+            _updateProjectionJob = new UpdateProjectionJob()
+            {
+                cells_x_j = cells_x,
+                cells_y_j = cells_y,
+                cells_z_j = cells_y,
+                velocity = velocity_j,
+                pressures = pressure_j,
+                divergence = divergence_j,
+                maxIterPoisson = maxIterPoisson,
+                maxIterProjection = maxIterProjection,
+                dt = Time.deltaTime
+            };
+            ProjetionJobHandle = _updateProjectionJob.Schedule();
+            ProjetionJobHandle.Complete();
+
+            for (int j = 0; j < velocity.Length; j++)
+            {
+                velocity[j] = velocity_j[j];
+                pressures[j] = pressure_j[j];
+            }
+        
     }
 
-    
+
 
     private Vector3 GetRandomPositionInSpawnArea()
     {
@@ -189,8 +196,9 @@ public class GridSM : MonoBehaviour
         return new Vector3(randomX, randomY, randomZ);
     }
     
-    public void WrapAround( Vector3 position)
+    public void WrapAround( GameObject obj)
     {
+        Vector3 position = obj.transform.position;
         if (position.x < minx)
             position.x = maxx;
         else if (position.x > maxx)
@@ -205,6 +213,8 @@ public class GridSM : MonoBehaviour
             position.z = maxz;
         else if (position.z > maxz)
             position.z = minz;
+        
+        obj.transform.position = position;
     }
     [BurstCompile]
     private struct UpdateAdvectionJob : IJobParallelFor
@@ -233,13 +243,10 @@ public class GridSM : MonoBehaviour
             Vector3 newpos = bubullepos + dt * vel;
             vel = TrilinearInterpolate(velocity, newpos);
             bubulleVel[index] = new Vector3(vel.x, vel.y, vel.z);
-            if (newpos.x < minx || newpos.x >= maxx || newpos.y < miny || newpos.y >= maxy || newpos.z < minz ||
-                newpos.z >= maxz)
-            {
-                newpos.x = Mathf.Repeat(newpos.x - minx, maxx ) + minx;
-                newpos.y = Mathf.Repeat(newpos.y - miny, maxy ) + miny;
-                newpos.z = Mathf.Repeat(newpos.z - minz, maxz ) + minz;
-            }
+            newpos.x = Mathf.Repeat(newpos.x - minx, maxx) + minx;
+            newpos.y = Mathf.Repeat(newpos.y - miny, maxy) + miny;
+            newpos.z = Mathf.Repeat(newpos.z - minz, maxz) + minz;
+            
             bubullePos[index] = newpos;
         }
         int getIndex(int x, int y, int z)
@@ -271,9 +278,9 @@ public class GridSM : MonoBehaviour
             int y1 = (int)(Mathf.Repeat(y0+1 - miny, maxy) + miny);
             int z1 = (int)(Mathf.Repeat(z0+1 - minz, maxz) + minz);
 
-            float xd = (Mathf.Repeat(gridPosition.x-x0 - minx, maxx));
-            float yd = (Mathf.Repeat(gridPosition.y-y0 - miny, maxy));
-            float zd = (Mathf.Repeat(gridPosition.z-z0 - minz, maxz));
+            float xd = (Mathf.Repeat(gridPosition.x-x0 - minx, maxx)+ minx);
+            float yd = (Mathf.Repeat(gridPosition.y-y0 - miny, maxy)+ miny);
+            float zd = (Mathf.Repeat(gridPosition.z-z0 - minz, maxz)+ minz);
             
             //Interpolation en x
             Vector3 c00 = gridData[getIndex(x0, y0, z0)] * (1 - xd) + gridData[getIndex(x1, y0, z0)] * xd;

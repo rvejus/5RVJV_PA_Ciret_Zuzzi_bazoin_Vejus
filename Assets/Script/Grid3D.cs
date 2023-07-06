@@ -61,7 +61,7 @@ public class Grid3D : MonoBehaviour
             {
                 for (int k = 0; k < cells_z; k++)
                 {
-                    Instantiate(cube, new Vector3(i, j, k), quaternion.identity);
+                    //Instantiate(cube, new Vector3(i, j, k), quaternion.identity);
                     //velocity[i, j, k] = Vector3.zero;
                     initPress[i * (cells_y * cells_z) + j * cells_z + k] = 0.0f;
                     velocity[i*(cells_y*cells_z)+j*cells_z+k] = new Vector3(Random.Range(-1,1)*2,

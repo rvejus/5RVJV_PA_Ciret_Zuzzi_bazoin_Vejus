@@ -31,9 +31,9 @@ public class BoidManager : MonoBehaviour {
         for (int i = 0; i < boidsNumber; i++)
         {
             GameObject curBoid = Instantiate(boidPrefab, spawnPoint);
-            Vector3 curPos = curBoid.transform.position;
+            /*Vector3 curPos = curBoid.transform.position;
             curBoid.transform.position = new Vector3(curPos.x + Random.Range(-1.0f, 1.0f),
-                curPos.y + Random.Range(-1.0f, 1.0f), curPos.z + Random.Range(-1.0f, 1.0f));
+                curPos.y + Random.Range(-1.0f, 1.0f), curPos.z + Random.Range(-1.0f, 1.0f));*/
         }
         boids = FindObjectsOfType<Boid> ();
         int latestBoid = 0;
@@ -41,8 +41,8 @@ public class BoidManager : MonoBehaviour {
             for (int j = 0; j < boidsPerTarget; j++, latestBoid++)
             {
                 Boid b = boids[latestBoid];
+                b.transform.position = new Vector3(targets[i].position.x+(j), targets[i].position.y+(j),targets[i].position.z+(j)) ;
                 b.Initialize (settings, targets[i]);
-                b.transform.position = targets[i].position;
             }
             if (latestBoid < boids.Length)
             {
