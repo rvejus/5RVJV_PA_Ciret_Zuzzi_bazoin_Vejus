@@ -80,9 +80,13 @@ public class Boid : MonoBehaviour {
         }
 
         velocity += acceleration * Time.deltaTime;
+        
+        float targetSpeed = target.GetComponent<Rigidbody>().velocity.magnitude;
+        
         float speed = velocity.magnitude;
+        
         Vector3 dir = velocity / speed;
-        speed = Mathf.Clamp (speed, settings.minSpeed, settings.maxSpeed);
+        speed = Mathf.Clamp (speed, settings.minSpeed,targetSpeed);
         velocity = dir * speed;
 
         cachedTransform.position += velocity * Time.deltaTime;

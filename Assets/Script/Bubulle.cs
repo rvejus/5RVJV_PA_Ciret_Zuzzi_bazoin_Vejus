@@ -10,6 +10,7 @@ public class Bubulle : MonoBehaviour
     public float density;       // densité de la particule
     public float pressure;      // pression de la particule
     public float volume;
+    public Vector3 lastPos;
     [HideInInspector]public Rigidbody rigidbody;
 
     private void Awake()
@@ -18,5 +19,10 @@ public class Bubulle : MonoBehaviour
         rigidbody.mass = 10.0f;
         volume = 4 / 3 * Mathf.PI * Mathf.Pow(GetComponent<SphereCollider>().radius, 3);
         density = rigidbody.mass / volume;
+    }
+
+    private void LateUpdate()
+    {
+        lastPos = this.transform.position;
     }
 }
