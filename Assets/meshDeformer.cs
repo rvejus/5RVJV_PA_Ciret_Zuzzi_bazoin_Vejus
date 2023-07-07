@@ -14,9 +14,9 @@ public class meshDeformer : MonoBehaviour
     [SerializeField]
     private GridSM _gridSm;
     private int trianglesNum;
-    [SerializeField][Range(0.0f,1f)]
+    [SerializeField][Range(0.0f,5f)]
     private float maxDiff=0.1f;
-    [SerializeField][Range(0.1f,1f)]
+    [SerializeField][Range(0.1f,3f)]
     private float amplify=1f;
     private int Xsize;
     private int Zsize;

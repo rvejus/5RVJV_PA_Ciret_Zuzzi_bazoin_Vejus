@@ -1051,8 +1051,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boidManager: {fileID: 652724766}
   _gridSm: {fileID: 421586471}
-  maxDiff: 1
-  amplify: 0.3
+  maxDiff: 1.2
+  amplify: 1
   prefabVisu: {fileID: 361193738}
 --- !u!1 &421586470
 GameObject:
@@ -3973,7 +3973,7 @@ MonoBehaviour:
     type: 3}
   targets: []
   boidsTrans: []
-  boidsPerTarget: 2
+  boidsPerTarget: 10
   spawnPoint: {fileID: 696826341}
 --- !u!4 &652724767
 Transform:
